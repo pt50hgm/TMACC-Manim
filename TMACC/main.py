@@ -4,7 +4,7 @@ THEME = {
     "default": {
         "color": "#ffffff",
         "stroke_width": 2,
-        "text_color": WHITE,
+        "color": [WHITE],
         "text_font": "Arial",
         "text_size": 48
     },
@@ -12,12 +12,12 @@ THEME = {
         "color": [WHITE, RED, GREEN, YELLOW, BLUE],
         "text_font": "Arial",
         "stroke_width": 4,
-        "text_size": [60, 48, 36, 24]
+        "text_size": [80, 48, 36, 28]
     },
     "code": {
         "color": [WHITE, RED, GREEN, YELLOW, BLUE],
         "text_font": "Cascadia Code",
-        "text_size": [60, 48, 36, 18]
+        "text_size": [80, 48, 36, 28]
     },
     "placeholder": {
         "stroke_width": 0
@@ -43,22 +43,24 @@ def ApplyTheme(mobj:VMobject, overrideTheme:str="", color:int=0, textSize:int=0)
     mobj.set_color(themeColor)
     mobj.set_fill(themeColor)
 
-    # Apply stroke width if applicable
-    if hasattr(mobj, "set_stroke"):
-        mobj.set_stroke(width=GetThemeProp("stroke_width", overrideTheme))
-
+    
     # Apply text-specific settings
     if isinstance(mobj, Text):
         new = Text(
             mobj.original_text,
             font=GetThemeProp("text_font", overrideTheme),
             font_size=GetThemeProp("text_size", overrideTheme)[textSize],
-            color=GetThemeProp("text_color", overrideTheme)
+            color=GetThemeProp("color", overrideTheme)[color],
+            stroke_width=0
         )
         mobj = new
-    
-    for sub in mobj.submobjects:
-        ApplyTheme(sub, overrideTheme, color)
+    else:
+        # Apply stroke width if applicable
+        if hasattr(mobj, "set_stroke"):
+            mobj.set_stroke(width=GetThemeProp("stroke_width", overrideTheme))
+        
+    # for sub in mobj.submobjects:
+    #     ApplyTheme(sub, overrideTheme, color, textSize)
     
     return mobj
 
@@ -98,7 +100,8 @@ class TMACCAnim(Scene):
         
 
     def outro(self):
-        titleText = NewText("Follow Us", textSize=0, color=1)\
+        self.wait()
+        titleText = NewText("Follow Us", overrideTheme="code", textSize=0, color=1)\
         .shift(UP*2.5)
         discord = ImageMobject(
             r"Assets\Images\discord.png"
@@ -115,7 +118,8 @@ class TMACCAnim(Scene):
         text2 = NewText("tmu_acc", textSize=3)\
         .next_to(insta, DOWN)
         self.play(FadeIn(text1, text2))
-        self.wait()
+        self.wait(duration=3)
+        self.play(FadeOut(titleText, discord, insta, text1, text2))
 
         
 
@@ -242,12 +246,14 @@ class MNumberRow(VGroup):
     def moveCursor(self, i):
         return [self.cursor.animate.next_to(self[i], DOWN)]
 
-class DefaultTemplate(TMACCAnim):
+class MainAnim(TMACCAnim):
     def __init__(self, **kwargs):
         super().__init__(FOR_SLIDESHOW=False, **kwargs)
+    def _should_skip_animation(self):
+        print("SDF")
     
     def main(self):
-        self.next_section(skip_animations=True)
+        self.next_section(skip_animations=False)
         codeText = NewText(
             "my_array = [0, 0, 0, 0, 0, 0]",
             overrideTheme="code",
@@ -271,14 +277,12 @@ class DefaultTemplate(TMACCAnim):
             mArray.animate.shift(RIGHT*mArray.label.width/2)
         )
 
+
         self.wait()
+        self.next_section(skip_animations=False)
         self.play(
             FadeOut(codeText)
         )
-
-
-        self.next_section(skip_animations=True)
-        self.wait()
         codeText = NewText(
             "my_array[1] = 8",
             overrideTheme="code",
@@ -293,16 +297,13 @@ class DefaultTemplate(TMACCAnim):
         self.play(
             *playAnims
         )
-        
+
+
         self.wait()
+        self.next_section(skip_animations=False)
         self.play(
             FadeOut(codeText)
         )
-
-
-        self.next_section(skip_animations=True)
-        self.wait()
-
         codeText = NewText(
             "my_array.append(3)",
             overrideTheme="code",
@@ -320,8 +321,8 @@ class DefaultTemplate(TMACCAnim):
         )
 
 
-        self.next_section(skip_animations=True)
         self.wait()
+        self.next_section(skip_animations=False)
         self.play(
             FadeOut(mArray),
             FadeOut(codeText)
@@ -348,8 +349,8 @@ class DefaultTemplate(TMACCAnim):
         )
 
 
-        self.next_section(skip_animations=True)
         self.wait()
+        self.next_section(skip_animations=False)
         freq = [0]*8
 
         prevArrayResolveAnims = [Animation(Mobject())]
@@ -365,15 +366,16 @@ class DefaultTemplate(TMACCAnim):
                 *prevArrayResolveAnims,
                 *arrayPlayAnims,
             )
-            self.wait(duration=0.5)
+            self.wait(duration=max(0.01, 0.5-i*0.1))
             prevArrayResolveAnims = arrayResolveAnims[:]
         self.play(
             numsRow.hideCursor(),
             *prevArrayResolveAnims
         )
 
-        self.next_section(skip_animations=False)
+
         self.wait()
+        self.next_section(skip_animations=False)
         self.play(
             FadeOut(mArray, numsRow, caption)
         )

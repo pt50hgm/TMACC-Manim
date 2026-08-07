@@ -1,0 +1,7 @@
+# This file is used internally by FFMPEG.
+file 'file:C:/Users/pt50h/OneDrive/Documents/GitHub/TMACC Manim/TMACC/media/videos/main/1080p30/partial_movie_files/MainAnim/2561303421_1427672686_408030265.mp4'
+file 'file:C:/Users/pt50h/OneDrive/Documents/GitHub/TMACC Manim/TMACC/media/videos/main/1080p30/partial_movie_files/MainAnim/2561303421_2834709167_1040159043.mp4'
+file 'file:C:/Users/pt50h/OneDrive/Documents/GitHub/TMACC Manim/TMACC/media/videos/main/1080p30/partial_movie_files/MainAnim/2561303421_3457406816_790893289.mp4'
+file 'file:C:/Users/pt50h/OneDrive/Documents/GitHub/TMACC Manim/TMACC/media/videos/main/1080p30/partial_movie_files/MainAnim/2561303421_2530717494_2659197368.mp4'
+file 'file:C:/Users/pt50h/OneDrive/Documents/GitHub/TMACC Manim/TMACC/media/videos/main/1080p30/partial_movie_files/MainAnim/2561303421_2552855209_406908114.mp4'
+file 'file:C:/Users/pt50h/OneDrive/Documents/GitHub/TMACC Manim/TMACC/media/videos/main/1080p30/partial_movie_files/MainAnim/2561303421_637039193_1278668750.mp4'
