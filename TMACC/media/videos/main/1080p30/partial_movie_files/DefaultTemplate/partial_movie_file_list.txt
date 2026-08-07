@@ -1,0 +1,7 @@
+# This file is used internally by FFMPEG.
+file 'file:C:/Users/pt50h/Documents/Manim/TMACC/media/videos/main/1080p30/partial_movie_files/DefaultTemplate/2561303421_2834709167_4115860243.mp4'
+file 'file:C:/Users/pt50h/Documents/Manim/TMACC/media/videos/main/1080p30/partial_movie_files/DefaultTemplate/2561303421_3442268180_2174364574.mp4'
+file 'file:C:/Users/pt50h/Documents/Manim/TMACC/media/videos/main/1080p30/partial_movie_files/DefaultTemplate/2561303421_1940164640_1904995611.mp4'
+file 'file:C:/Users/pt50h/Documents/Manim/TMACC/media/videos/main/1080p30/partial_movie_files/DefaultTemplate/2561303421_2834709167_4080078345.mp4'
+file 'file:C:/Users/pt50h/Documents/Manim/TMACC/media/videos/main/1080p30/partial_movie_files/DefaultTemplate/2561303421_3757418822_1556448114.mp4'
+file 'file:C:/Users/pt50h/Documents/Manim/TMACC/media/videos/main/1080p30/partial_movie_files/DefaultTemplate/2561303421_2834709167_1921975637.mp4'

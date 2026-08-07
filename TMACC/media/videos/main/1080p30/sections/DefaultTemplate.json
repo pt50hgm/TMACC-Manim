@@ -1,0 +1,26 @@
+[
+    {
+        "name": "1",
+        "type": "default.normal",
+        "video": "DefaultTemplate_0000_1.mp4",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "60",
+        "duration": "2.000000",
+        "avg_frame_rate": "30/1",
+        "codec_name": "h264",
+        "pix_fmt": "yuv420p"
+    },
+    {
+        "name": "2",
+        "type": "default.normal",
+        "video": "DefaultTemplate_0001_2.mp4",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "60",
+        "duration": "2.000000",
+        "avg_frame_rate": "30/1",
+        "codec_name": "h264",
+        "pix_fmt": "yuv420p"
+    }
+]
