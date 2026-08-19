@@ -1,4 +1,5 @@
 from manim import *
+from manim_slides import Slide
 
 # Theme Dictionary contains all text and color formatting
 THEME = {
@@ -87,23 +88,27 @@ def NewText(val, **kwargs):
     )
 
 # TMACC Animations Wrapper Class
-class TMACCAnim(Scene):
+class TMACCAnim(Slide):
     def __init__(self, FOR_SLIDESHOW=False, **kwargs):
         super().__init__(**kwargs)
         self.FOR_SLIDESHOW = FOR_SLIDESHOW
+        self.LOGO_ALPHA = 0.5
 
     def main(self):
         pass
 
+    # CLI runs this method
     def construct(self):
-        # Add logo
-        if not self.FOR_SLIDESHOW:
-            logo = ImageMobject(
-                r"Assets\Images\tmacc-logo-circular-inkscape.png"
-            ).set(width=1.5)\
-            .to_corner(DOWN+RIGHT).shift((DOWN+RIGHT)*0.25)\
-            .set_opacity(0.5)
-            self.add(logo)
+        # Set background and logo
+        self.bg = ImageMobject(
+            r"Assets\Images\wavydarkbackground.webp"
+        ).set(height=8)
+        self.logo = ImageMobject(
+            r"Assets\Images\tmacc-logo-circular-inkscape.png"
+        ).set(width=1.5)\
+        .to_corner(DOWN+RIGHT).shift((DOWN+RIGHT)*0.25)\
+        .set_opacity(self.LOGO_ALPHA)
+        self.play(FadeIn(self.logo))
 
         # Play the main animation
         self.main()
@@ -111,6 +116,36 @@ class TMACCAnim(Scene):
         # Play the outro
         if not self.FOR_SLIDESHOW:
             self.outro()
+    
+    def text_slide(self, title="", bullets=[]):
+        titleText = NewText(title, textSize=0, color=0)\
+        .to_edge(UL)
+        bulletText = VGroup()
+        for bullet in bullets:
+            bulletText.add(NewText("- " + bullet, textSize=2, color=0))
+        bulletText.arrange(DOWN, aligned_edge=LEFT, buff=0.5)
+        
+        self.play(
+            LaggedStart(
+                AnimationGroup(
+                    self.bg.animate.set_opacity(1),
+                    self.logo.animate.set_opacity(self.LOGO_ALPHA),
+                    FadeIn(titleText)
+                ),
+                *[FadeIn(text) for text in bulletText],
+                lag_ratio=0.5
+            )
+        )
+
+
+        self.wait()
+        self.next_slide()
+        self.next_section()
+        
+        self.play(
+            self.bg.animate.set_opacity(0),
+            FadeOut(titleText, bulletText)
+        )
         
 
     def outro(self):

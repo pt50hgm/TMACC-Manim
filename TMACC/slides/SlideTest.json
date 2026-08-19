@@ -1,0 +1,65 @@
+{
+  "slides": [
+    {
+      "loop": false,
+      "auto_next": false,
+      "playback_rate": 1.0,
+      "reversed_playback_rate": 1.0,
+      "notes": "",
+      "dedent_notes": true,
+      "skip_animations": false,
+      "src": null,
+      "type": "video",
+      "direction": "horizontal",
+      "file": "slides\\files\\SlideTest\\9cae8a73d6fe978c4a89fbb19aaee6abd6b27416878d55b9093392015e3f331d.mp4",
+      "rev_file": "slides\\files\\SlideTest\\9cae8a73d6fe978c4a89fbb19aaee6abd6b27416878d55b9093392015e3f331d_reversed.mp4"
+    },
+    {
+      "loop": false,
+      "auto_next": false,
+      "playback_rate": 1.0,
+      "reversed_playback_rate": 1.0,
+      "notes": "",
+      "dedent_notes": true,
+      "skip_animations": false,
+      "src": null,
+      "type": "video",
+      "direction": "horizontal",
+      "file": "slides\\files\\SlideTest\\35971a41001b31ba9b73ff503675112277c23ec35d198cfa2cf19383473fdd61.mp4",
+      "rev_file": "slides\\files\\SlideTest\\35971a41001b31ba9b73ff503675112277c23ec35d198cfa2cf19383473fdd61_reversed.mp4"
+    },
+    {
+      "loop": false,
+      "auto_next": false,
+      "playback_rate": 1.0,
+      "reversed_playback_rate": 1.0,
+      "notes": "",
+      "dedent_notes": true,
+      "skip_animations": false,
+      "src": null,
+      "type": "video",
+      "direction": "horizontal",
+      "file": "slides\\files\\SlideTest\\af648655b119e14a66cd914c79d6c28819eab4ba5b26c031418b19811e5f7300.mp4",
+      "rev_file": "slides\\files\\SlideTest\\af648655b119e14a66cd914c79d6c28819eab4ba5b26c031418b19811e5f7300_reversed.mp4"
+    },
+    {
+      "loop": false,
+      "auto_next": false,
+      "playback_rate": 1.0,
+      "reversed_playback_rate": 1.0,
+      "notes": "",
+      "dedent_notes": true,
+      "skip_animations": false,
+      "src": null,
+      "type": "video",
+      "direction": "horizontal",
+      "file": "slides\\files\\SlideTest\\6688727c17d3cb6ee75d3498b7392cf96d700c684a4aaf95c3a51ba501ebaebf.mp4",
+      "rev_file": "slides\\files\\SlideTest\\6688727c17d3cb6ee75d3498b7392cf96d700c684a4aaf95c3a51ba501ebaebf_reversed.mp4"
+    }
+  ],
+  "resolution": [
+    1920,
+    1080
+  ],
+  "background_color": "black"
+}
