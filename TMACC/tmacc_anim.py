@@ -1,6 +1,8 @@
 from manim import *
 from manim_slides import Slide
 
+from enum import Enum
+
 # Theme Dictionary contains all text and color formatting
 THEME = {
     "default": {
@@ -14,12 +16,16 @@ THEME = {
         "color": [WHITE, RED, GREEN, YELLOW, BLUE],
         "text_font": "Arial",
         "stroke_width": 4,
-        "text_size": [80, 48, 36, 28]
+        "text_size": [60, 48, 36, 28]
+    },
+    "title": {
+        "text_font": "Arial",
+        "text_size": [120, 80]
     },
     "code": {
         "color": [WHITE, RED, GREEN, YELLOW, BLUE],
         "text_font": "Cascadia Code",
-        "text_size": [80, 48, 36, 28]
+        "text_size": [60, 48, 36, 28]
     },
     "placeholder": {
         "stroke_width": 0
@@ -28,6 +34,12 @@ THEME = {
 
 # Current Theme takes priority over default
 currentTheme = THEME["main"]
+
+
+def ensure_iterable(*items):
+    if len(items) == 1 and hasattr(items[0], "__iter__") and not isinstance(items[0], (str, bytes)):
+        return list(items[0])
+    return list(items)
 
 # Returns property with the current themes applied
 def GetThemeProp(prop:str, overrideTheme:str=""):
@@ -87,6 +99,38 @@ def NewText(val, **kwargs):
         **kwargs
     )
 
+class TextBox(VGroup):
+    def __init__(self, text, max_width, **kwargs):
+        super().__init__()
+
+        words = text.split()
+        lines = []
+        current = ""
+
+        # Build wrapped lines
+        for w in words:
+            test_line = current + (" " if current else "") + w
+            test_obj = NewText(test_line, **kwargs)
+
+            if test_obj.width > max_width:
+                # Commit current line
+                lines.append(current)
+                current = w
+            else:
+                current = test_line
+
+        # Add last line
+        if current:
+            lines.append(current)
+
+        # Convert lines into mobjects
+        for line in lines:
+            self.add(NewText(line, **kwargs))
+
+        # Stack vertically
+        self.arrange(DOWN, aligned_edge=LEFT, buff=0.5)
+
+
 # TMACC Animations Wrapper Class
 class TMACCAnim(Slide):
     def __init__(self, FOR_SLIDESHOW=False, **kwargs):
@@ -102,12 +146,14 @@ class TMACCAnim(Slide):
         # Set background and logo
         self.bg = ImageMobject(
             r"Assets\Images\wavydarkbackground.webp"
-        ).set(height=8)
+        ).set(height=8).set_opacity(0)
         self.logo = ImageMobject(
             r"Assets\Images\tmacc-logo-circular-inkscape.png"
         ).set(width=1.5)\
         .to_corner(DOWN+RIGHT).shift((DOWN+RIGHT)*0.25)\
         .set_opacity(self.LOGO_ALPHA)
+
+        self.add(self.bg)
         self.play(FadeIn(self.logo))
 
         # Play the main animation
@@ -116,38 +162,8 @@ class TMACCAnim(Slide):
         # Play the outro
         if not self.FOR_SLIDESHOW:
             self.outro()
-    
-    def text_slide(self, title="", bullets=[]):
-        titleText = NewText(title, textSize=0, color=0)\
-        .to_edge(UL)
-        bulletText = VGroup()
-        for bullet in bullets:
-            bulletText.add(NewText("- " + bullet, textSize=2, color=0))
-        bulletText.arrange(DOWN, aligned_edge=LEFT, buff=0.5)
         
-        self.play(
-            LaggedStart(
-                AnimationGroup(
-                    self.bg.animate.set_opacity(1),
-                    self.logo.animate.set_opacity(self.LOGO_ALPHA),
-                    FadeIn(titleText)
-                ),
-                *[FadeIn(text) for text in bulletText],
-                lag_ratio=0.5
-            )
-        )
-
-
-        self.wait()
-        self.next_slide()
-        self.next_section()
         
-        self.play(
-            self.bg.animate.set_opacity(0),
-            FadeOut(titleText, bulletText)
-        )
-        
-
     def outro(self):
         self.wait()
         titleText = NewText("Follow Us", overrideTheme="code", textSize=0, color=1)\
@@ -170,6 +186,71 @@ class TMACCAnim(Slide):
         self.wait(duration=3)
         self.play(FadeOut(titleText, discord, insta, text1, text2))
 
+class TMACCSlide:
+    def __init__(self, tmaccAnim:TMACCAnim, *components):
+        super().__init__()
+
+        self.tmaccAnim = tmaccAnim
+        components = ensure_iterable(*components)
+        self.components = Group(*components)
+        
+
+    def play(self):
+        if not self: return
+
+        self.tmaccAnim.play(
+            LaggedStart(
+                AnimationGroup(
+                    self.tmaccAnim.bg.animate.set_opacity(1),
+                    self.tmaccAnim.logo.animate.set_opacity(self.tmaccAnim.LOGO_ALPHA),
+                    FadeIn(self.components[0])
+                ),
+                *[FadeIn(item) for item in self.components[1:]],
+                lag_ratio=0.5
+            )
+        )
+
+
+        self.tmaccAnim.wait()
+        self.tmaccAnim.next_slide()
+        self.tmaccAnim.next_section()
+        
+        self.tmaccAnim.play(
+            self.tmaccAnim.bg.animate.set_opacity(0),
+            FadeOut(self.components)
+        )
+
+class AxisContainer(Group):
+    def __init__(self, *components, componentDir=DOWN, spacing=0.5):
+        components = ensure_iterable(*components)
+        super().__init__(*components)
+        
+        
+        if not type(spacing) is list:
+            spacing = [0.5]*len(components)
+        
+        Pos = [item.get_center() for item in self]
+
+        for i in range(len(self)-1):
+            self[i+1].next_to(self[i], componentDir, spacing[i])
+
+        for i in range(len(Pos)):
+            if componentDir is DOWN:
+                self[i].set_x(Pos[i][0])
+            else:
+                self[i].set_y(Pos[i][1])
+
+        self.move_to(ORIGIN)
+
+class SBulletedList(Group):
+    def __init__(self, *bullets):
+        super().__init__()
+        bullets = ensure_iterable(*bullets)
+        
+        for bullet in bullets:
+            text = NewText("- " + bullet, textSize=2, color=0)
+            self.add(text)
+        self.arrange(DOWN, aligned_edge=LEFT, buff=0.5)
         
 
         
