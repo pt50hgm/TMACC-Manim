@@ -36,6 +36,7 @@ class MainAnim(TMACCAnim):
 
 
         self.wait()
+        self.next_slide()
         self.next_section(skip_animations=False)
         self.play(
             FadeOut(codeText)
@@ -57,6 +58,7 @@ class MainAnim(TMACCAnim):
 
 
         self.wait()
+        self.next_slide()
         self.next_section(skip_animations=False)
         self.play(
             FadeOut(codeText)
@@ -79,6 +81,7 @@ class MainAnim(TMACCAnim):
 
 
         self.wait()
+        self.next_slide()
         self.next_section(skip_animations=False)
         self.play(
             FadeOut(mArray),
@@ -107,6 +110,7 @@ class MainAnim(TMACCAnim):
 
 
         self.wait()
+        self.next_slide()
         self.next_section(skip_animations=False)
         freq = [0]*8
 
@@ -132,6 +136,7 @@ class MainAnim(TMACCAnim):
 
 
         self.wait()
+        self.next_slide()
         self.next_section(skip_animations=False)
         self.play(
             FadeOut(mArray, numsRow, caption)
