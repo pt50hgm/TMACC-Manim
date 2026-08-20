@@ -1,3 +1,4 @@
 .venv
 *.pyc
 /TMACC/media
+/TMACC/slides
