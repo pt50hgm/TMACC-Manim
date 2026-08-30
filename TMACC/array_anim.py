@@ -1,7 +1,7 @@
-from tmacc_anim import *
+from TMACC_ANIM import *
 from manim import *
 
-class MainAnim(TMACCAnim):
+class ArrayAnim(TMACCAnim):
     # Set FOR_SLIDESHOW to false for Instagram video format
     # Adds Logo and Outro
     def __init__(self, **kwargs):

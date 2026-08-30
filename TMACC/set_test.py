@@ -1,4 +1,4 @@
-from tmacc_anim import *
+from TMACC_ANIM import *
 from manim import *
 
 class MainAnim(TMACCAnim):
