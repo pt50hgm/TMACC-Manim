@@ -166,7 +166,7 @@ class TMACCAnim(Slide):
         
     def outro(self):
         self.wait()
-        titleText = NewText("Follow Us", overrideTheme="code", textSize=0, color=1)\
+        titleText = NewText("Follow Us", overrideTheme="title", textSize=1, color=1)\
         .shift(UP*2.5)
         discord = ImageMobject(
             r"Assets\Images\discord.png"
@@ -242,7 +242,7 @@ class AxisContainer(Group):
 
         self.move_to(ORIGIN)
 
-class SBulletedList(Group):
+class MBulletedList(Group):
     def __init__(self, *bullets):
         super().__init__()
         bullets = ensure_iterable(*bullets)
@@ -253,86 +253,84 @@ class SBulletedList(Group):
         self.arrange(DOWN, aligned_edge=LEFT, buff=0.5)
         
 
-        
+def MapListStr(arr):
+    res = arr[:]
+    for i in range(len(arr)):
+        if type(arr[i]) is int:
+            res[i] = str(arr[i])  
+    return res
+
 # Manim Array Class
-# set, append, pop methods return [playAnimations, resolveAnimations]
-# eg. use self.play(*playAnimations)
+# set, append, pop methods return [playAnimation, resolveAnimation]
+# eg. use self.play(playAnimation)
 class MArray(VGroup):
-    def __init__(self, init:list[str], label=""):
+    def __init__(self, init:list[str], **kwargs):
         super().__init__()
         self.length = len(init)
-
-        self.label = ApplyTheme(Text(label), color=1, textSize=1) if label else GetPlaceHolder()
-        self.valueText = VGroup()
+        self.textArgs = kwargs
+        self.numberRow = MNumberRow(init, spacing=0.75, **self.textArgs)
+        self.valueText = self.numberRow.valueText
         self.indexText = VGroup()
         self.squares = VGroup()
-        self.items = VGroup(self.squares, self.valueText, self.indexText)
-        self.add(self.label, self.items)
+        self.add(self.squares, self.indexText, self.numberRow)
 
         for i in range(self.length):
-            square = ApplyTheme(Square(side_length=1))
+            value = self.valueText[i]
+            square = ApplyTheme(Square(side_length=1))\
+                .move_to(value)
             self.squares.add(square)
-        self.squares.arrange(RIGHT, buff=0)
-        self.squares.move_to(ORIGIN)
 
-        for i in range(self.length):
-            square = self.squares[i]
-            valueText = NewText(init[i], textSize=1).move_to(square)
             indexText = NewText(str(i), color=2, textSize=2)\
-                .move_to(square).shift(UP)
-            self.valueText.add(valueText)
+                .move_to(value).shift(UP)
             self.indexText.add(indexText)
-        
-        self.label.next_to(self.squares[0], LEFT*self.label.width/2)
 
-    def set(self, i:int, val:str):
-        text = NewText(val, textSize=1, color=1)\
-                .move_to(self.squares[i])\
-                    if val else GetPlaceHolder()
-        return [
-            [
-                ReplacementTransform(
-                    self.valueText[i],
-                    text
-                )
-            ],
-            [text.animate.set_color(GetThemeProp("color")[0])]
-        ]
+        self.move_to(ORIGIN)
+    
+    def setI(self, i:int, val:str):
+        return self.numberRow.setI(i, val)
 
     def append(self, val:str):
         self.length += 1
         i = self.length-1
+
+        valueTextPlayAnim, valueTextResolveAnim = self.numberRow.append(val)
+        valueText = self.numberRow.valueText[-1]
+
         square = ApplyTheme(
             Square(side_length=1)\
-                .move_to(self.squares[i-1])\
-                .shift(RIGHT),
+                .move_to(self.valueText[-1]),
             color=1
         )
-        valueText = NewText(val, textSize=1).move_to(square)
+        
+        
         indexText = NewText(str(i), color=2, textSize=2)\
-            .move_to(square).shift(UP)
+            .move_to(valueText).shift(UP)
+
         self.squares.add(square)
-        self.valueText.add(valueText)
         self.indexText.add(indexText)
+
         return [
-            [
+            AnimationGroup(
                 Create(square), 
-                Create(valueText),
-                Create(indexText)
-            ],
-            [square.animate.set_color(GetThemeProp("color")[0])]
+                Create(indexText),
+                valueTextPlayAnim
+            ),
+            AnimationGroup(
+                square.animate.set_color(GetThemeProp("color")[0]),
+                valueTextResolveAnim
+            )
         ]
 
     def pop(self):
         i = self.length-1
         self.length -= 1
         anims = [
-            [
-            Uncreate(self.squares[i]), 
-            Uncreate(self.valueText[i]),
-            Uncreate(self.indexText[i])
-            ],
-            [Animation(Mobject())]
+            AnimationGroup(
+                Uncreate(self.squares[i]), 
+                Uncreate(self.valueText[i]),
+                Uncreate(self.indexText[i])
+            ),
+            Animation(Mobject())
         ]
         self.squares.remove(self.squares[i])
         self.valueText.remove(self.valueText[i])
@@ -343,43 +341,93 @@ class MArray(VGroup):
 # set, highlight, show/hide/move cursor methods return [playAnimations, resolveAnimations]
 # eg. use self.play(*playAnimations)
 class MNumberRow(VGroup):
-    def __init__(self, init:list[str]):
+    def __init__(self, init:list[str], spacing=0.5, **kwargs):
         super().__init__()
-        self.items = init[:]
+        init = MapListStr(init)
+        self.buff = spacing
+        self.textArgs = kwargs
+
+        self.values = init[:]
+        self.valueText = VGroup()
         for num in init:
-            self.add(
+            self.valueText.add(
                 NewText(num,
-                    textSize=1,
-                ).shift(DOWN*2)
+                    **self.textArgs,
+                )
             )
-        self.arrange(RIGHT, buff=0.5)
-        self.move_to(ORIGIN)
+        self.valueText.arrange(RIGHT, buff=self.buff)
+        self.add(self.valueText)
+        self.valueText.arrange(RIGHT, buff=self.buff)
+        self.valueText.move_to(ORIGIN)
+
         self.cursor = ApplyTheme(
             Rectangle(height=0.08, width=0.6, fill_opacity=1),
             color=2
         )
-    
-    def set(self, i:int, val:str):
-        text = NewText(val, textSize=1, color=1)\
-                .move_to(self[i])\
+        
+    def setI(self, i:int, val:str):
+        text = NewText(val, **self.textArgs)\
+                .move_to(self.valueText[i])\
+                .set_color(GetThemeProp("color")[1])\
                     if val else GetPlaceHolder()
-        return [
-            [
-                ReplacementTransform(
-                    self[i],
-                    text
-                )
-            ],
-            [text.animate.set_color(GetThemeProp("color")[0])]
+        
+        self.values[i] = val
+        anims = [
+            ReplacementTransform(
+                self.valueText[i],
+                text
+            ),
+            text.animate.set_color(GetThemeProp("color")[0])
         ]
+        return anims
+    def append(self, val:str):
+        valueText = NewText(val, **self.textArgs)
+        if len(self.values) > 1:
+            valueText.next_to(self.valueText[-1], RIGHT, buff=self.buff)
+        self.values.append(val)
+        self.valueText.add(valueText)
+        
+        return [
+            Create(valueText),
+            valueText.animate.set_color(GetThemeProp("color")[0])
+        ]
+    def remove(self, i):
+        return AnimationGroup(
+            ReplacementTransform(
+                self.valueText[i],
+                GetPlaceHolder()
+            ),
+            self.animate.arrange(RIGHT, buff=self.buff)
+        )
 
     def highlight(self, i):
-        playAnims, resolveAnims = self.set(i, self.items[i])
+        playAnims, resolveAnims = self.setI(i, self.values[i])
         return [playAnims, resolveAnims]
 
     def showCursor(self, i):
-        return [FadeIn(self.cursor.next_to(self[i], DOWN))]
+        return FadeIn(self.cursor.next_to(self.valueText[i], DOWN))
     def hideCursor(self):
-        return [FadeOut(self.cursor)]
+        return FadeOut(self.cursor)
     def moveCursor(self, i):
-        return [self.cursor.animate.next_to(self[i], DOWN)]
+        return self.cursor.animate.next_to(self.valueText[i], DOWN)
+
+class MSet(AxisContainer):
+    def __init__(self, init:list[str], **kwargs):
+        self.vals = set(init)
+        init = list(self.vals)
+        self.valueText = MNumberRow(init)
+        self.bracket1 = NewText("{", **kwargs)
+        self.bracket2 = NewText("}", **kwargs)
+
+        super().__init__(self.bracket1, self.valueText, self.bracket2, componentDir=RIGHT, **kwargs)
+
+    def Create(self):
+        return Succession(
+            FadeIn(self.bracket1),
+            Create(self.valueText),
+            FadeIn(self.bracket2),
+        )
+
+    def append(num):
+        pass
+    
