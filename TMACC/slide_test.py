@@ -3,10 +3,11 @@ from manim import *
 
 
 """
-To Export as .html:
+To Export as .html and .pptx:
 
 manim-slides render slide_test.py SlideTest
 manim-slides convert SlideTest slide_test.html
+manim-slides convert SlideTest slide_test.pptx
 """
 class SlideTest(TMACCAnim):
     # Set FOR_SLIDESHOW to false for Instagram video format
@@ -34,7 +35,7 @@ class SlideTest(TMACCAnim):
             self,
             AxisContainer(
                 NewText("Schedule").to_edge(LEFT),
-                SBulletedList(
+                MBulletedList(
                     "6:10: Event Introduction + Overview",
                     "6:35: Let's start coding!",
                     "7:00: Snacks!",
