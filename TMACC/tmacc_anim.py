@@ -130,6 +130,44 @@ class TextBox(VGroup):
         # Stack vertically
         self.arrange(DOWN, aligned_edge=LEFT, buff=0.5)
 
+class MCamera(VGroup):
+    def __init__(self):
+        super().__init__()
+        self.frameWidth = 14
+        self.originalWidth = 14
+        self.scaleFactor = 1.0
+        self.shiftVector = ORIGIN.copy()
+        self.add(Square(0.0001).set_opacity(0))
+
+
+    def cam_set_width(self, width):
+        factor = width / self.frameWidth
+        self.frameWidth = width
+        self.scaleFactor *= 1/factor
+        return self.animate.scale(1/factor)
+        
+        
+    def cam_shift(self, vec):
+        delta = -vec * self.scaleFactor
+        self.shiftVector += delta
+        return self.animate.shift(delta)
+
+    def cam_move_to(self, target):
+        return self.cam_shift(target - self.shiftVector)
+
+    def cam_move_to_and_zoom(self, target, width):
+        factor = width / self.frameWidth
+        self.frameWidth = width
+        self.scaleFactor *= 1/factor
+        delta = -(target - self.shiftVector) * self.scaleFactor
+        return self.animate.shift(delta).scale(1/factor)
+        
+    def cam_add(self, *objs):
+        for mob in objs:
+            mob.move_to(mob.get_center() * self.scaleFactor + self.shiftVector)
+            mob.scale(self.scaleFactor)
+            self.add(mob)
+
 
 # TMACC Animations Wrapper Class
 class TMACCAnim(Slide):
@@ -220,27 +258,35 @@ class TMACCSlide:
             FadeOut(self.components)
         )
 
-class AxisContainer(Group):
+class AxisContainer(VGroup):
     def __init__(self, *components, componentDir=DOWN, spacing=0.5):
+        super().__init__()
+
         components = ensure_iterable(*components)
-        super().__init__(*components)
-        
-        
+
+        # Choose internal container
+        if any(isinstance(c, ImageMobject) for c in components):
+            self.container = Group(*components)
+        else:
+            self.container = VGroup(*components)
+
+        self.add(self.container)
+
         if not type(spacing) is list:
             spacing = [0.5]*len(components)
         
-        Pos = [item.get_center() for item in self]
+        Pos = [item.get_center() for item in self.container]
 
-        for i in range(len(self)-1):
-            self[i+1].next_to(self[i], componentDir, spacing[i])
+        for i in range(len(self.container)-1):
+            self.container[i+1].next_to(self.container[i], componentDir, spacing[i])
 
         for i in range(len(Pos)):
             if componentDir is DOWN:
-                self[i].set_x(Pos[i][0])
+                self.container[i].set_x(Pos[i][0])
             else:
-                self[i].set_y(Pos[i][1])
+                self.container[i].set_y(Pos[i][1])
 
-        self.move_to(ORIGIN)
+        self.container.move_to(ORIGIN)
 
 class MBulletedList(Group):
     def __init__(self, *bullets):
