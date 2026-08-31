@@ -136,36 +136,30 @@ class MCamera(VGroup):
         self.frameWidth = 14
         self.originalWidth = 14
         self.scaleFactor = 1.0
-        self.shiftVector = ORIGIN.copy()
-        self.add(Square(0.0001).set_opacity(0))
+        self.add(Square(100).set_opacity(0))
+        self.move_to(ORIGIN)
 
-
+    def cam_move_to_and_zoom(self, target, width):
+        factor = width / self.frameWidth
+        self.frameWidth = width
+        self.scaleFactor *= 1/factor
+        return self.animate.scale(1/factor).move_to(-target)
+    
     def cam_set_width(self, width):
         factor = width / self.frameWidth
         self.frameWidth = width
         self.scaleFactor *= 1/factor
         return self.animate.scale(1/factor)
         
-        
-    def cam_shift(self, vec):
-        delta = -vec * self.scaleFactor
-        self.shiftVector += delta
-        return self.animate.shift(delta)
-
     def cam_move_to(self, target):
-        return self.cam_shift(target - self.shiftVector)
-
-    def cam_move_to_and_zoom(self, target, width):
-        factor = width / self.frameWidth
-        self.frameWidth = width
-        self.scaleFactor *= 1/factor
-        delta = -(target - self.shiftVector) * self.scaleFactor
-        return self.animate.shift(delta).scale(1/factor)
-        
+        return self.animate.move_to(-target)
+    
     def cam_add(self, *objs):
         for mob in objs:
-            mob.move_to(mob.get_center() * self.scaleFactor + self.shiftVector)
             mob.scale(self.scaleFactor)
+            mob.move_to((mob.get_center()) * self.scaleFactor)
+            mob.shift(self.get_center())
+            
             self.add(mob)
 
 

@@ -23,9 +23,34 @@ class MainAnim(TMACCAnim):
             run_time=1
         )
 
-        self.play(cam.cam_move_to_and_zoom(LEFT*2, 28))
-        self.play(cam.cam_move_to_and_zoom(RIGHT*2, 7))        
-        
+        codeText = NewText(
+            "my_set = 8",
+            overrideTheme="code",
+            textSize=1
+        ).shift(DOWN)
+        x = codeText.copy()
+        cam.cam_add(x)
+        self.play(
+            cam.cam_move_to_and_zoom(LEFT*2, 28)
+        )
+        self.play(x.animate.shift(RIGHT*2 * cam.scaleFactor))
+        cam.remove(x)
+        x = codeText.copy()
+        cam.cam_add(x)
+        self.play(
+            cam.cam_move_to_and_zoom(RIGHT*2, 7)
+        )
+        self.play(x.animate.shift(RIGHT*2 * cam.scaleFactor))
+        cam.remove(x)
+        x = codeText.copy()
+        cam.cam_add(x)
+        self.play(
+            cam.cam_move_to_and_zoom(UP*2, 20)
+        )
+        self.play(x.animate.shift(RIGHT*2 * cam.scaleFactor))
+        cam.remove(x)
+        x = codeText.copy()
+        cam.cam_add(x)
         
         self.wait()
         self.next_section(skip_animations=False)
@@ -44,7 +69,3 @@ class MainAnim(TMACCAnim):
         self.play(
             FadeOut(codeText, setGroup)
         )
-        # playAnim, resolveAnim = mArray.set(1, "8")
-        # self.play(
-        #     playAnim
-        # )
