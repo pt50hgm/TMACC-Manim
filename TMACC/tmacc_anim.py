@@ -1,3 +1,4 @@
+import re
 from manim import *
 from manim_slides import Slide
 
@@ -24,7 +25,8 @@ THEME = {
     },
     "code": {
         "color": [WHITE, RED, GREEN, YELLOW, BLUE],
-        "text_font": "Cascadia Code",
+        # "text_font": "Cascadia Code",
+        "text_font": "Courier New",
         "text_size": [60, 48, 36, 28]
     },
     "placeholder": {
@@ -93,11 +95,74 @@ def GetPlaceHolder():
 
 # Returns a Text object with the theme applied
 def NewText(val, **kwargs):
-    return ApplyTheme(
+    text = ApplyTheme(
         # Temporarily sets font to arial to avoid missing font errors
         Text(val, font="Arial"),
         **kwargs
     )
+    text = apply_theme_markup(text)
+    return text
+
+def NewMarkupText(text: str, spacing=0, **kwargs):
+    lines = VGroup()
+    for line in text.split('\n'):
+        line = "|" + line
+        pattern = r"\[(\w+)\](.*?)\[/\1\]"
+        color_spans = []
+
+        # Find all markup segments
+        for colorKey, substring in re.findall(pattern, line):
+            color_spans.append((substring, int(colorKey)))
+
+        # Remove markup tags from the text
+        clean_text = re.sub(pattern, r"\2", line)
+
+        text_obj = NewText(clean_text, **kwargs)
+        raw = text_obj.text
+
+        for substring, colorKey in color_spans:
+            color = GetThemeProp("color")[colorKey]
+            
+            start = 0
+            while True:
+                idx = raw.find(substring, start)
+                if idx == -1:
+                    break
+                for ri in range(idx, idx + len(substring)):
+                    text_obj[ri].set_color(color)
+                start = idx + len(substring)
+        text_obj[0].set_opacity(0)
+        lines.add(text_obj)
+    lines.arrange(direction=DOWN, buff=spacing, aligned_edge=LEFT)
+    return lines
+
+
+def apply_theme_markup(text_obj: Text):
+    """
+    Parses markup like [accent]word[/accent] and applies theme colors.
+    """
+    raw = text_obj.text
+
+    # Regex: [colorname]...[/colorname]
+    pattern = r"\[(\w+)\](.*?)\[/\1\]"
+
+    # Find all markup segments
+    for match in re.finditer(pattern, raw):
+        colorKey = int(match.group(1)) # e.g. "1"
+        substring = match.group(2)      # e.g. "important"
+        color = GetThemeProp("color")[colorKey]
+
+        # Color all occurrences of substring inside the markup
+        start = 0
+        while True:
+            idx = raw.find(substring, start)
+            if idx == -1:
+                break
+            for i in range(idx, idx + len(substring)):
+                text_obj[i].set_color(color)
+            start = idx + len(substring)
+
+    return text_obj
 
 class TextBox(VGroup):
     def __init__(self, text, max_width, **kwargs):
@@ -470,4 +535,60 @@ class MSet(AxisContainer):
 
     def append(num):
         pass
+
+
+
+class MCode(VGroup):
+    def __init__(self, codeLines, camera=None, **kwargs):
+        super().__init__()
+        self.codeLines = codeLines
+        self.camera = camera
+        self.add(codeLines)
+        self.highlight_init()
+        self.highlight_visible = False
+        camera.cam_add(self)
+
+    def highlight_init(self):
+        self.highlight = SurroundingRectangle(
+            self.codeLines[0],
+            buff=0,
+            fill_color=YELLOW,
+            fill_opacity=0.15,
+            stroke_width=0
+        )
+        self.highlight.set(width=1+max(line.width for line in self.codeLines))
+        self.highlight.align_to(self.codeLines[0], direction=LEFT)
     
+    def highlight_fade_out(self):
+        self.highlight_visible = False
+        return FadeOut(self.highlight)
+
+    def highlight_line(self, line, duration=1):
+        if self.highlight_visible == False:
+            self.highlight_init()
+            self.highlight.set_y(self.codeLines[line].get_y())
+            self.highlight_visible = True
+            return FadeIn(self.highlight)
+        
+        return Succession(
+            self.highlight.animate(run_time=0.7).set_y(self.codeLines[line].get_y()),
+            Wait(duration-0.7)
+        )
+
+        
+
+    def replace_line(self, line, val):
+        newText = Mobject()
+        if type(val) is str:
+            newText = NewMarkupText(val, overrideTheme="code", color=0, textSize=3)[0]
+            if self.camera:
+                newText.scale(self.camera.scaleFactor)
+            newText.move_to(self.codeLines[line]).align_to(self.codeLines[line], direction=LEFT).set_opacity(0)
+        else:
+            newText = val
+        playAnim = AnimationGroup(
+            self.codeLines[line].animate.set_opacity(0),
+            newText[1:].animate.set_opacity(1)
+        )
+        self.codeLines[line] = newText
+        return playAnim
